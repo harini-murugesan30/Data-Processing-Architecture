@@ -1,0 +1,65 @@
+version: '3'
+
+services:
+  zookeeper:
+    image: confluentinc/cp-zookeeper:latest
+    ports:
+      - "2181:2181"
+    environment:
+      ZOOKEEPER_CLIENT_PORT: 2181
+      ZOOKEEPER_TICK_TIME: 2000
+
+  kafka:
+    image: wurstmeister/kafka:2.12-2.2.1
+    ports:
+      - "9092:9092"  # Kafka internal broker communication
+      - "9094:9094"  # External access to Kafka
+    environment:
+      KAFKA_ADVERTISED_LISTENERS: INSIDE://kafka:9092,OUTSIDE://localhost:9094
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: INSIDE:PLAINTEXT,OUTSIDE:PLAINTEXT
+      KAFKA_LISTENERS: INSIDE://0.0.0.0:9092,OUTSIDE://0.0.0.0:9094
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+      KAFKA_INTER_BROKER_LISTENER_NAME: INSIDE
+    volumes:  
+      - /var/run/docker.sock:/var/run/docker.sock  # Allows Kafka to work with Docker
+
+  hdfs-namenode:
+    image: bde2020/hadoop-namenode:2.0.0-hadoop2.7.4-java8
+    environment:
+      - CLUSTER_NAME=test
+    volumes:
+      - hdfs:/hadoop/dfs/name
+    ports:
+      - "50070:50070"  # HDFS Web UI
+
+  hdfs-datanode:
+    image: bde2020/hadoop-datanode:2.0.0-hadoop2.7.4-java8
+    environment:
+      - CLUSTER_NAME=test
+      - HDFS_DATANODE_OPTS="-Dhadoop.net.ConnectTimeout=20000"  # Increase timeout
+    volumes:
+      - hdfs:/hadoop/dfs/data
+    ports:
+      - "50075:50075"  # HDFS DataNode Web UI
+
+  spark-master:
+    image: bde2020/spark-master:2.4.0-hadoop2.7
+    ports:
+      - "8080:8080"  # Spark Master Web UI
+    environment:
+      - INIT_DAEMON_STEP=setup_spark
+    volumes:
+      - spark-data:/spark
+
+  spark-worker:
+    image: bde2020/spark-worker:2.4.0-hadoop2.7
+    environment:
+      - SPARK_MASTER=spark://spark-master:7077  # Connect worker to Spark master
+    ports:
+      - "8081:8081"  # Spark Worker Web UI
+    volumes:
+      - spark-data:/spark
+
+volumes:
+  hdfs:  # Persistent storage for HDFS
+  spark-data:  # Persistent storage for Spark 

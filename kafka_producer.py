@@ -1,4 +1,4 @@
- from kafka import KafkaProducer
+from kafka import KafkaProducer
 import json
 import csv
 import time

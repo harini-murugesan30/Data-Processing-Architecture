@@ -6,7 +6,7 @@ This project implements a **batch-processing pipeline** to handle data-intensive
 
 ## Architecture
 
-![Architecture Diagram](https://github.com/harini-murugesan30/Data-Processing-Architecture/blob/main/images/Data_Architecture.png)
+![Architecture Diagram](https://github.com/harini-murugesan30/Data-Processing-Architecture/blob/main/Murugesan-Harini_7230799_Data%20Engineering_P1_S.png)
 
 ### Components:
 - **Kafka**: Entry point for data ingestion, streaming raw data.
@@ -45,15 +45,15 @@ This project implements a **batch-processing pipeline** to handle data-intensive
 
 2. **Start Docker Containers**
    ```bash
-   docker-compose up --build
+   docker-compose up -d
 
 3. **Stream Data into Kafka** Run the producer script to stream tweets:
    ```bash
-   python producer.py
+   python3 kafka_producer.py
 
 4. **Consume Data into HDFS** Run the consumer script to ingest data into HDFS:
    ```bash
-   python consumer.py
+   python3 kafka_consumer.py
    
 5. **Process Data with Spark** Execute the Spark job to analyze stored data:
    ```bash
